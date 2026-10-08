@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#121716"><meta name="description" content="清影：在浏览器内修复照片和视频的局部水印，涂抹擦除照片杂物，对比效果并下载。">
+<title>清影 · 照片合成与视频修复</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%23121716'/%3E%3Cpath d='M10 24 23 10l9 9-13 14h-5z' fill='%23c7f59b'/%3E%3Cpath d='m13 21 10 9' stroke='%23121716' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/style.css"><script type="module" src="/app.js"></script>
+</head>
+<body>
+<svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="i-erase" viewBox="0 0 24 24"><path d="m4 14 9-10a2 2 0 0 1 3 0l5 5a2 2 0 0 1 0 3L12 22H9l-5-5a2 2 0 0 1 0-3Z"/><path d="m8 10 8 8M12 22h10"/></symbol>
+<symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></symbol>
+<symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m10 8 6 4-6 4Z"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/></symbol>
+<symbol id="i-brush" viewBox="0 0 24 24"><path d="m9 13 9-10 3 3-9 10M9 13l3 3c0 5-5 5-9 5 3-1 0-5 6-8Z"/></symbol>
+<symbol id="i-rect" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1" stroke-dasharray="3 3"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><path d="M8 4 3 9l5 5M3 9h11a7 7 0 0 1 0 14"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V3h8v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5ZM20 2v4m-2-2h4"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4m-4 5v2"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+</defs></svg>
+<header class="header"><a class="brand" href="/" aria-label="清影首页"><span class="brand-mark"><svg><use href="#i-erase"/></svg></span><strong>清影</strong><span class="brand-sub">轻松修复每一帧</span></a><nav class="mode-tabs" aria-label="素材类型"><button class="mode active" data-mode="image" aria-pressed="true"><svg><use href="#i-image"/></svg>照片工作台</button><button class="mode" data-mode="video" aria-pressed="false"><svg><use href="#i-video"/></svg>视频去水印</button></nav><button id="help" class="help-button">使用说明 <span>?</span></button></header>
+<main>
+<div class="page-heading"><div><div class="eyebrow">QINGYING / WORKSPACE</div><h1 id="page-title">照片工作台<span class="version">本地处理</span></h1><p id="page-subtitle">修复、调色、抠图合成，让照片多一点可能。</p></div><button class="secondary" id="open-top"><svg><use href="#i-upload"/></svg><span>选择照片</span></button></div>
+<div class="workspace">
+<section class="editor" aria-label="编辑画布">
+<div class="editor-top"><span class="file-title" id="file-title">编辑画布</span><span class="file-meta" id="file-meta">尚未选择文件</span><div class="view-toggle" hidden id="view-toggle"><button id="edit-view" class="active">编辑</button><button id="compare-view">前后对比</button></div></div>
+<div class="photo-toolbar" id="photo-toolbar" aria-label="照片编辑工具"><div class="photo-tabs"><button data-photo-pane="repair" class="active" aria-pressed="true">局部修复</button><button data-photo-pane="tone" aria-pressed="false">调色清晰</button><button data-photo-pane="compose" aria-pressed="false">照片合成</button><button data-photo-pane="cutout" aria-pressed="false">抠图修边</button></div><button id="add-photo" class="tiny-button" disabled>＋ 添加照片</button></div>
+<div class="stage" id="drop-zone">
+<div class="empty" id="empty"><div class="upload-illustration"><svg><use href="#i-image"/></svg><span>+</span></div><h2 id="drop-title">将照片拖到这里</h2><p>或从你的设备中选择文件</p><button id="open-center" class="primary"><svg><use href="#i-upload"/></svg><span>选择照片</span></button><span class="format-note" id="format-note">JPG、PNG、WebP · 最大 25 MB</span><div class="empty-tips"><span><svg><use href="#i-check"/></svg>去除局部水印</span><span><svg><use href="#i-check"/></svg>擦除多余杂物</span><span><svg><use href="#i-check"/></svg>保留原始文件</span></div></div>
+<div id="canvas-wrap" hidden><canvas id="display" aria-label="图片预览"></canvas><canvas id="schedule-mask" aria-hidden="true"></canvas><canvas id="mask" aria-label="用鼠标或手指涂抹选区"></canvas><div id="cursor"></div><div class="compare-tags" hidden id="compare-tags"><span>原图</span><span>修复后</span></div><div id="compare-line" hidden></div></div>
+<video id="result-video" controls playsinline hidden aria-label="处理后的视频"></video>
+<div class="busy-overlay" id="busy" hidden><span class="spinner"></span><strong id="busy-title">正在修复选区…</strong><p id="busy-text">请稍等，正在补全周围画面。</p><progress id="progress" max="100" value="0"></progress><span id="progress-label">0%</span><button id="cancel" class="secondary">取消处理</button></div>
+</div>
+<div id="compare-control" class="compare-control" hidden><span>原图</span><input type="range" id="compare-slider" min="0" max="100" value="50" aria-label="前后对比分割位置"><span>修复后</span></div>
+<div id="timeline" class="timeline" hidden><button id="play" class="tiny-button" aria-label="播放视频">播放</button><input type="range" id="seek" min="0" max="100" value="0" step="0.01" aria-label="视频进度"><span id="video-time">0:00.00 / 0:00.00</span><button id="step-back" class="tiny-button" aria-label="后退零点一秒">−0.1s</button><button id="step-forward" class="tiny-button" aria-label="前进零点一秒">+0.1s</button></div>
+<section id="video-segments" class="video-segments" hidden aria-label="水印生效时段">
+<div class="segment-heading"><h2>水印追踪方式</h2><fieldset class="timing-modes"><legend class="sr-only">水印的位置变化方式</legend><label><input type="radio" name="video-timing" value="auto" checked>自动追踪</label><label><input type="radio" name="video-timing" value="segments">手动分段</label><label><input type="radio" name="video-timing" value="fixed">全程固定</label></fieldset></div>
+<section id="auto-tracking" class="auto-tracking" aria-label="自动水印追踪">
+<p class="segment-intro">暂停在水印清晰的一帧，<strong>紧贴水印框选一次</strong>。网站会搜索整段视频中的相同图案，查找左右换位和位置移动。</p>
+<div class="tracking-setup"><label for="track-threshold">匹配要求<select id="track-threshold"><option value="0.72">平衡 · 相似度 ≥ 0.72</option><option value="0.82">严格 · 相似度 ≥ 0.82</option></select></label><button id="analyze-tracking" class="primary" disabled><svg><use href="#i-spark"/></svg><span>自动分析整段视频</span></button></div>
+<div id="tracking-reference" class="tracking-reference" hidden><canvas id="reference-preview" aria-label="已选的参考水印"></canvas><div><strong>参考水印</strong><span id="reference-caption"></span></div></div>
+<div id="tracking-results" class="tracking-results" hidden><div class="tracking-result-heading"><strong id="tracking-summary"></strong><span id="tracking-live"></span></div><div id="tracking-strip" class="tracking-strip" role="img" aria-label="全片抽样匹配情况"></div><div class="tracking-legend"><span>蓝色：匹配到参考图案</span><span>橙色：未可靠匹配</span></div><p class="small-note">每 0.25 秒抽样分析，预览轨迹供检查；导出时重新逐帧核对。未可靠匹配的画面会跳过修复。</p><div id="tracking-jumps" class="tracking-jumps"></div><details id="tracking-issues"><summary id="tracking-issues-title">查看待检查片段</summary><div id="tracking-issue-list" class="tracking-issue-list"></div></details></div>
+<p id="tracking-export-note" class="tracking-export-note" hidden></p><p class="small-note">本地参考图案匹配，需先框选一次。适合同一图案、大小基本不变的水印；透明、变形和相似图案可能导致漏检或误匹配。</p>
+</section><div id="segment-form" hidden>
+<p class="segment-intro">暂停视频并框选水印，再填写它在这个位置出现的时间。例如：0–3 秒在左边，3–6 秒在右边，分别保存。</p>
+<div class="segment-fields"><label for="segment-start">开始（秒）<input id="segment-start" type="number" min="0" step="0.01" value="0" inputmode="decimal"><button id="start-now" class="text-button" type="button">取当前时间</button></label><span class="time-separator">—</span><label for="segment-end">结束（秒）<input id="segment-end" type="number" min="0" step="0.01" value="0" inputmode="decimal"><button id="end-now" class="text-button" type="button">取当前时间</button></label><div class="segment-save"><button id="save-segment" class="secondary" disabled>保存这个时段</button><button id="cancel-segment-edit" class="text-button" hidden>取消编辑</button></div></div>
+<div class="segment-list-heading"><span id="segment-count">尚未保存时段</span><span id="active-segments">蓝色表示当前生效的标记</span></div><ol id="segment-list" class="segment-list" aria-label="已保存的水印时段"></ol><p id="no-segments" class="small-note">保存后可以继续标记下一个位置，最后点击“开始修复”。</p>
+</div><p id="fixed-note" class="small-note" hidden>当前选区会在整个视频中生效，适合位置始终不变的水印。</p></section>
+<div id="photo-layers" class="photo-layers" hidden><div class="layer-heading"><span>照片图层 <span id="layer-count">0 / 8</span></span><span>左侧在底部 · 点击切换编辑对象</span></div><div id="layer-list" class="layer-list" aria-label="照片图层"></div></div>
+<div class="editor-bottom"><span id="canvas-hint">先选择照片，再涂抹需要擦除的区域</span><span id="resolution">—</span></div>
+</section>
+<aside class="panel" aria-label="修复工具">
+<div class="panel-title"><span id="panel-tool-title">修复工具</span><span id="photo-status" class="step-chip">LOCAL STUDIO</span></div>
+<div class="tool-section" id="repair-selection-tools"><div class="section-label"><span class="step">01</span><h2>标记区域</h2></div><div class="tool-buttons"><button data-tool="brush" class="tool active" aria-pressed="true"><svg><use href="#i-brush"/></svg><span>画笔</span><kbd>B</kbd></button><button data-tool="rect" class="tool" aria-pressed="false"><svg><use href="#i-rect"/></svg><span>框选</span><kbd>R</kbd></button><button data-tool="erase" class="tool" aria-pressed="false"><svg><use href="#i-erase"/></svg><span>减选</span><kbd>E</kbd></button></div><label class="range-label" for="brush-size"><span>画笔大小</span><output id="brush-value">32 px</output></label><div class="brush-range"><span class="brush-small"></span><input type="range" id="brush-size" min="6" max="180" value="32"><span class="brush-large"></span></div><p class="small-note" id="selection-tip">将水印或杂物完整涂满，边缘稍微多涂一点。</p><div class="selection-actions"><button id="undo" disabled><svg><use href="#i-undo"/></svg>撤销选区</button><button id="clear" disabled><svg><use href="#i-trash"/></svg>清空</button></div></div>
+<div class="tool-section" id="repair-process-tools"><div class="section-label"><span class="step">02</span><h2>修复画面</h2></div><fieldset class="methods" id="methods"><legend class="sr-only">修复方式</legend><label class="method selected"><input type="radio" name="method" value="smooth" checked><span><strong>平滑修复</strong><small>适合天空、墙面等简单背景</small></span><span class="radio-dot"></span></label><label class="method"><input type="radio" name="method" value="texture"><span><strong>纹理修复</strong><small>从周围采样，适合草地等纹理</small></span><span class="radio-dot"></span></label></fieldset><p class="small-note" id="video-note" hidden>先框选一次水印，再点击画布下方的“自动分析整段视频”。检查蓝色跟踪框后，开始修复。</p><button id="process" class="primary full" disabled><svg><use href="#i-spark"/></svg><span>开始修复</span></button><div id="selection-summary" class="selection-summary">还没有标记区域</div></div>
+<div id="photo-tools" hidden>
+<div class="active-layer-label"><span>当前图层</span><strong id="active-layer-name">请先选择照片</strong></div>
+<section class="tool-section photo-pane" id="pane-tone" hidden aria-label="色彩与清晰度">
+<h2>色彩与清晰度</h2><p class="small-note">仅调整当前图层，松开滑杆后更新画面。</p>
+<label class="range-label" for="photo-brightness"><span>亮度</span><output id="value-brightness">0</output></label><input id="photo-brightness" data-adjust="brightness" type="range" min="-100" max="100" value="0">
+<label class="range-label" for="photo-contrast"><span>对比度</span><output id="value-contrast">0</output></label><input id="photo-contrast" data-adjust="contrast" type="range" min="-90" max="90" value="0">
+<label class="range-label" for="photo-saturation"><span>色彩饱和度</span><output id="value-saturation">0</output></label><input id="photo-saturation" data-adjust="saturation" type="range" min="-100" max="100" value="0">
+<label class="range-label" for="photo-warmth"><span>冷暖色温</span><output id="value-warmth">0</output></label><input id="photo-warmth" data-adjust="warmth" type="range" min="-100" max="100" value="0">
+<label class="range-label" for="photo-clarity"><span>清晰度</span><output id="value-clarity">0</output></label><input id="photo-clarity" data-adjust="clarity" type="range" min="0" max="100" value="0">
+<button id="reset-tone" class="secondary full">重置本层调色</button><p class="small-note">清晰度通过锐化增强边缘，不会生成原图中缺失的细节。</p></section>
+<section class="tool-section photo-pane" id="pane-compose" hidden aria-label="图层与拼图">
+<h2>图层与位置</h2><p class="small-note">拖动画面中的照片移动；拖右下角方块等比缩放。</p>
+<label class="range-label" for="layer-scale"><span>图层大小</span><output id="value-scale">100%</output></label><input id="layer-scale" type="range" min="1" max="300" value="100">
+<label class="range-label" for="layer-opacity"><span>不透明度</span><output id="value-opacity">100%</output></label><input id="layer-opacity" type="range" min="0" max="100" value="100">
+<div class="position-fields"><label for="layer-x">X 位置<input id="layer-x" type="number" step="1" value="0"></label><label for="layer-y">Y 位置<input id="layer-y" type="number" step="1" value="0"></label></div>
+<div class="photo-button-grid"><button id="layer-back" class="secondary">下移一层</button><button id="layer-front" class="secondary">上移一层</button><button id="layer-background" class="secondary">设为背景</button><button id="layer-fit" class="secondary">居中适配</button></div>
+<button id="layer-delete" class="text-button danger-text">删除当前图层</button>
+<h2 class="subsection-title">多张照片拼图</h2><div class="layout-buttons"><button data-layout="horizontal">横排</button><button data-layout="vertical">竖排</button><button data-layout="grid">网格</button></div>
+<label class="export-format background-select" for="photo-background"><span>画布背景</span><select id="photo-background"><option value="transparent">透明</option><option value="#ffffff">白色</option><option value="#111615">深色</option></select></label><p class="small-note">拼图会重新排列全部图层。最多 8 张，导出画布长边不超过 2400 像素。</p>
+</section>
+<section class="tool-section photo-pane" id="pane-cutout" hidden aria-label="抠图与修边">
+<h2>抠图与修边</h2><div class="cutout-tools"><button data-cutout="background" class="active" aria-pressed="true">点选去背景</button><button data-cutout="polygon" aria-pressed="false">多边形保留</button><button data-cutout="erase" aria-pressed="false">擦除边缘</button><button data-cutout="restore" aria-pressed="false">恢复边缘</button></div>
+<p id="cutout-hint" class="small-note">点击要去掉的背景，移除相连的相近颜色。适合纯色或简单背景。</p>
+<div id="tolerance-control"><label class="range-label" for="cutout-tolerance"><span>颜色容差</span><output id="value-tolerance">24</output></label><input id="cutout-tolerance" type="range" min="1" max="100" value="24"></div>
+<div id="cutout-brush-control" hidden><label class="range-label" for="cutout-brush"><span>修边画笔</span><output id="value-cutout-brush">32 px</output></label><input id="cutout-brush" type="range" min="3" max="150" value="32"></div>
+<div id="polygon-controls" class="photo-button-grid" hidden><button id="finish-polygon" class="secondary" disabled>保留圈内区域</button><button id="cancel-polygon" class="secondary" disabled>取消圈选</button></div>
+<div class="photo-button-grid cutout-actions"><button id="feather-mask" class="secondary">柔化边缘 1 px</button><button id="undo-cutout" class="secondary" disabled>撤销抠图</button></div>
+<button id="reset-cutout" class="text-button">恢复本层完整照片</button><button id="download-cutout" class="secondary full"><svg><use href="#i-download"/></svg>导出本层透明 PNG</button><p class="small-note">复杂背景可沿主体轮廓逐点圈选，再用修边画笔细调。头发等细小边缘需要手工检查。</p>
+</section></div>
+<div class="tool-section export-section"><div class="section-label"><span class="step">03</span><h2>保存结果</h2></div><label class="export-format" for="format"><span>导出格式</span><select id="format"><option value="image/png">PNG · 无损</option><option value="image/jpeg">JPG · 更小文件</option><option value="image/webp">WebP</option></select></label><button id="download" class="secondary full" disabled><svg><use href="#i-download"/></svg><span id="download-label">下载照片</span></button><button class="text-button" id="reset" disabled>重置全部编辑</button></div>
+</aside>
+</div>
+<div class="below-workspace"><span><svg><use href="#i-lock"/></svg>文件只在你的浏览器中处理，不会上传</span><span>复杂背景可能留下修复痕迹 · 请先对比再保存</span></div>
+<footer><span class="footer-brand">清影 <span>QINGYING</span></span><span>留住画面里的好。</span></footer>
+</main>
+<input id="file-input" class="sr-only" tabindex="-1" type="file" multiple accept="image/jpeg,image/png,image/webp">
+<input id="add-photo-input" class="sr-only" tabindex="-1" type="file" multiple accept="image/jpeg,image/png,image/webp">
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<dialog id="help-dialog"><div class="dialog-title"><h2>如何使用清影</h2><button id="close-help" aria-label="关闭使用说明">×</button></div><ol><li><strong>选择文件</strong><p>照片支持 JPG、PNG、WebP，最大 25 MB、3000 万像素；视频支持浏览器能播放的 MP4、WebM、MOV，最大 200 MB、2 分钟。</p></li><li><strong>涂抹或框选</strong><p>将需要去除的区域完整选中，最好稍微覆盖外缘。减选工具可擦掉多涂的部分，撤销可回退上一笔。</p></li><li><strong>修复并对比</strong><p>平滑修复适合简单背景，纹理修复适合重复纹理。照片长边最多处理 2400 像素；纹理修复建议只选取较小区域。大物体、复杂背景无法保证自然补全。</p></li><li><strong>保存结果</strong><p>照片可导出 PNG、JPG、WebP。视频支持参考图案自动追踪：框选一次后自动抽样分析位置，导出时逐帧核对并修复，未可靠匹配时跳过。也可手动分段标记或选择全程固定。最长边 1280 像素，最高约 30 帧/秒；按浏览器支持导出 MP4 或 WebM，并保留音轨。处理期间保持页面在前台。</p></li><li><strong>调色、拼图与合成</strong><p>照片工作台支持亮度、对比度、饱和度、冷暖和清晰度。添加多张照片后，点击画布下方的图层切换对象；在“照片合成”中移动、等比缩放、修改不透明度和层级，或一键横排、竖排、网格拼图。多选导入会自动拼图。最多 8 层，新增照片长边最多 1600 像素。</p></li><li><strong>抠图到另一张照片</strong><p>先打开背景图，再“添加照片”导入主体。选择主体图层，在“抠图修边”中点选去背景，或沿主体轮廓点击至少 3 个点后“保留圈内区域”。支持手动画笔擦除、恢复、撤销抠图和柔化边缘；导出的 PNG 保留透明区域，JPG 会将透明处填白。</p></li></ol><div class="help-callout">这是本地照片编辑与像素修复工具。抠图采用颜色选择和手动圈选，不是 AI 人像识别。它不能找回被水印遮住的真实细节，自动追踪依赖你框选的参考图案，不能保证识别所有水印或恢复真实细节。透明、旋转、缩放和外观变化可能导致追踪失败；可切换手动分段修正。</div><p class="shortcuts">快捷键：B 画笔 · R 框选 · E 减选 · Ctrl/⌘ + Z 撤销选区</p></dialog>
+</body></html>
